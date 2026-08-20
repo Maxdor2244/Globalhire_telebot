@@ -809,4 +809,18 @@ def main(force=False):
 # =========================================================
 
 if __name__ == "__main__":
-    main()
+    print("========================================", flush=True)
+    print("Starting GlobalHire Bot...", flush=True)
+    print("BOT_TOKEN detected:", bool(BOT_TOKEN), flush=True)
+    print("CHAT_ID configured:", bool(TARGET_CHAT_ID), flush=True)
+    print("Loading Telegram polling...", flush=True)
+    print("========================================", flush=True)
+
+    try:
+        main()
+    except Exception as error:
+        print("========================================", flush=True)
+        print("BOT CRASHED!", flush=True)
+        print(f"Error: {error}", flush=True)
+        print("========================================", flush=True)
+        raise
