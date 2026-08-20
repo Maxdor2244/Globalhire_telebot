@@ -15,7 +15,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import fetch_loker
+print("Starting GlobalHire Bot...", flush=True)
+
+try:
+    import fetch_loker
+    print("fetch_loker imported successfully", flush=True)
+except Exception as e:
+    print(f"ERROR importing fetch_loker: {e}", flush=True)
+    raise
 
 
 # =========================
@@ -592,23 +599,21 @@ def scheduler_loop():
 
 
 def main():
-    print("=" * 50)
-    print("GlobalHire Bot")
-    print("BOT ACTIVE")
-    print(f"Automatic schedule: {schedule_text()}")
-    print("=" * 50)
+    print("=" * 50, flush=True)
+    print("GlobalHire Bot", flush=True)
+    print("BOT ACTIVE", flush=True)
+    print(f"Automatic schedule: {schedule_text()}", flush=True)
+    print("=" * 50, flush=True)
 
     threading.Thread(
         target=scheduler_loop,
         daemon=True
     ).start()
 
-    bot.infinity_polling(
+    print("Starting Telegram polling...", flush=True)
+    
+        bot.infinity_polling(
         timeout=30,
         long_polling_timeout=30,
         skip_pending=True
-    )
-
-
-if __name__ == "__main__":
-    main()
+        )
