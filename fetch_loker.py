@@ -27,12 +27,11 @@ CHAT_ID = (
 
 ADS_FILE = "ads.json"
 
+ADS_FILE = "ads.json"
+
 DEFAULT_ADS = {
     "iklan-1": "https://cv-kerjadimana.gemilangsakti31.workers.dev",
-    "iklan-2": (
-        "https://omg10.com/4/11592711/"
-
-    ),
+    "iklan-2": "https://omg10.com/4/11592711/",
 }
 
 ADS_LABELS = {
