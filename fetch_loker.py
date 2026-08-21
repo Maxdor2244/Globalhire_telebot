@@ -286,7 +286,7 @@ def clean_job_title(raw_title):
             ""
         )
 
-    return title.strip(" ,-") 
+    return title.strip(" ,-")
 
 
 def fallback_description(
@@ -406,22 +406,13 @@ def send_telegram(
     print()
     print("📤 SENDING POST")
 
-    print(
-        "🌐 CV:"
-    )
-
+    print("🌐 CV:")
     print(ads["iklan-1"])
 
-    print(
-        "✍️ COVER LETTER:"
-    )
-
+    print("✍️ COVER LETTER:")
     print(ads["iklan-2"])
 
-    print(
-        "🔎 JOB LISTING:"
-    )
-
+    print("🔎 JOB LISTING:")
     print(link)
 
     try:
@@ -471,9 +462,7 @@ def send_telegram(
 
         return True
 
-    print(
-        "❌ TELEGRAM FAILED"
-    )
+    print("❌ TELEGRAM FAILED")
 
     print(
         f"HTTP Status: "
@@ -501,10 +490,7 @@ def process_feed(
     print()
     print("=" * 60)
 
-    print(
-        "📡 Fetching RSS:"
-    )
-
+    print("📡 Fetching RSS:")
     print(rss_url)
 
     try:
@@ -557,9 +543,7 @@ def process_feed(
 
         return 0
 
-    items = root.findall(
-        ".//item"
-    )
+    items = root.findall(".//item")
 
     print(
         f"📦 Found "
@@ -660,13 +644,9 @@ def process_feed(
         )
 
         berhasil = send_telegram(
-
             title,
-
             description,
-
             link
-
         )
 
         if berhasil:
@@ -742,13 +722,9 @@ def main(force=False):
     for rss_url in RSS_FEEDS:
 
         total += process_feed(
-
             rss_url,
-
             sent,
-
             force=force
-
         )
 
     # =====================================================
@@ -777,13 +753,9 @@ def main(force=False):
         for rss_url in FALLBACK_RSS_FEEDS:
 
             total += process_feed(
-
                 rss_url,
-
                 sent,
-
                 force=force
-
             )
 
     save_sent(sent)
@@ -806,18 +778,66 @@ def main(force=False):
 # =========================================================
 
 if __name__ == "__main__":
-    print("========================================", flush=True)
-    print("Starting GlobalHire Bot...", flush=True)
-    print("BOT_TOKEN detected:", bool(BOT_TOKEN), flush=True)
-    print("CHAT_ID configured:", bool(TARGET_CHAT_ID), flush=True)
-    print("Loading Telegram polling...", flush=True)
-    print("========================================", flush=True)
+
+    print(
+        "========================================",
+        flush=True
+    )
+
+    print(
+        "Starting GlobalHire Bot...",
+        flush=True
+    )
+
+    print(
+        "BOT_TOKEN detected:",
+        bool(BOT_TOKEN),
+        flush=True
+    )
+
+    # FIX:
+    # Sebelumnya menggunakan TARGET_CHAT_ID
+    # padahal variabel yang didefinisikan adalah CHAT_ID.
+    print(
+        "CHAT_ID configured:",
+        bool(CHAT_ID),
+        flush=True
+    )
+
+    print(
+        "Loading Telegram polling...",
+        flush=True
+    )
+
+    print(
+        "========================================",
+        flush=True
+    )
 
     try:
+
         main()
+
     except Exception as error:
-        print("========================================", flush=True)
-        print("BOT CRASHED!", flush=True)
-        print(f"Error: {error}", flush=True)
-        print("========================================", flush=True)
+
+        print(
+            "========================================",
+            flush=True
+        )
+
+        print(
+            "BOT CRASHED!",
+            flush=True
+        )
+
+        print(
+            f"Error: {error}",
+            flush=True
+        )
+
+        print(
+            "========================================",
+            flush=True
+        )
+
         raise
