@@ -30,8 +30,9 @@ ADS_FILE = "ads.json"
 DEFAULT_ADS = {
     "iklan-1": "https://cv-kerjadimana.gemilangsakti31.workers.dev",
     "iklan-2": (
-        "https://aboardpoodlechat.com/"
-        "u7t8hcvxga?key=9718e827473e98bbec182ac0a8acf4e3"
+        "https://omg10.com/4/11592711/"
+        "https://omg10.com/4/11613187"
+        "https://omg10.com/4/11613192"
     ),
 }
 
