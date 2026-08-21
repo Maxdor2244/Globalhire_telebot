@@ -31,8 +31,7 @@ DEFAULT_ADS = {
     "iklan-1": "https://cv-kerjadimana.gemilangsakti31.workers.dev",
     "iklan-2": (
         "https://omg10.com/4/11592711/"
-        "https://omg10.com/4/11613187"
-        "https://omg10.com/4/11613192"
+
     ),
 }
 
