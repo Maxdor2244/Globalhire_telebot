@@ -29,7 +29,10 @@ ADS_FILE = "ads.json"
 
 DEFAULT_ADS = {
     "iklan-1": "https://cv-kerjadimana.gemilangsakti31.workers.dev",
-    "iklan-2": "https://omg10.com/4/11592711/",
+    "iklan-2": (
+        "https://omg10.com/4/11613192"
+        "https://omg10.com/4/11613187
+    ),
 }
 
 ADS_LABELS = {
@@ -286,13 +289,10 @@ def clean_job_title(raw_title):
             ""
         )
 
-    return title.strip(" ,-")
+    return title.strip(" ,-") 
 
 
-def fallback_description(
-    title,
-    source
-):
+def fallback_description( title, source ):
 
     source_text = (
         f" from {source}"
@@ -353,11 +353,7 @@ def build_keyboard(link):
 # SEND TO TELEGRAM
 # =========================================================
 
-def send_telegram(
-    title,
-    description,
-    link
-):
+def send_telegram( title, description, link ):
 
     if len(description) > 3000:
 
@@ -406,13 +402,22 @@ def send_telegram(
     print()
     print("📤 SENDING POST")
 
-    print("🌐 CV:")
+    print(
+        "🌐 CV:"
+    )
+
     print(ads["iklan-1"])
 
-    print("✍️ COVER LETTER:")
+    print(
+        "✍️ COVER LETTER:"
+    )
+
     print(ads["iklan-2"])
 
-    print("🔎 JOB LISTING:")
+    print(
+        "🔎 JOB LISTING:"
+    )
+
     print(link)
 
     try:
@@ -462,7 +467,9 @@ def send_telegram(
 
         return True
 
-    print("❌ TELEGRAM FAILED")
+    print(
+        "❌ TELEGRAM FAILED"
+    )
 
     print(
         f"HTTP Status: "
@@ -481,16 +488,15 @@ def send_telegram(
 # PROCESS RSS
 # =========================================================
 
-def process_feed(
-    rss_url,
-    sent,
-    force=False
-):
+def process_feed( rss_url, sent, force=False ):
 
     print()
     print("=" * 60)
 
-    print("📡 Fetching RSS:")
+    print(
+        "📡 Fetching RSS:"
+    )
+
     print(rss_url)
 
     try:
@@ -543,7 +549,9 @@ def process_feed(
 
         return 0
 
-    items = root.findall(".//item")
+    items = root.findall(
+        ".//item"
+    )
 
     print(
         f"📦 Found "
@@ -644,9 +652,13 @@ def process_feed(
         )
 
         berhasil = send_telegram(
+
             title,
+
             description,
+
             link
+
         )
 
         if berhasil:
@@ -722,9 +734,13 @@ def main(force=False):
     for rss_url in RSS_FEEDS:
 
         total += process_feed(
+
             rss_url,
+
             sent,
+
             force=force
+
         )
 
     # =====================================================
@@ -753,9 +769,13 @@ def main(force=False):
         for rss_url in FALLBACK_RSS_FEEDS:
 
             total += process_feed(
+
                 rss_url,
+
                 sent,
+
                 force=force
+
             )
 
     save_sent(sent)
@@ -778,66 +798,641 @@ def main(force=False):
 # =========================================================
 
 if __name__ == "__main__":
+    main()
+    print("✅ BOT_TOKEN tersedia.")
+    print(f"✅ CHAT_ID: {CHAT_ID}")
 
-    print(
-        "========================================",
-        flush=True
-    )
+    print()
+    print("🌐 LINK CV:")
+    print(CV_URL)
 
-    print(
-        "Starting GlobalHire Bot...",
-        flush=True
-    )
+    print()
+    print("✍️ LINK SURAT LAMARAN:")
+    print(LAMARAN_URL)
 
-    print(
-        "BOT_TOKEN detected:",
-        bool(BOT_TOKEN),
-        flush=True
-    )
 
-    # FIX:
-    # Sebelumnya menggunakan TARGET_CHAT_ID
-    # padahal variabel yang didefinisikan adalah CHAT_ID.
-    print(
-        "CHAT_ID configured:",
-        bool(CHAT_ID),
-        flush=True
-    )
+# =========================================================
+# DATABASE ANTI DUPLIKAT
+# =========================================================
 
-    print(
-        "Loading Telegram polling...",
-        flush=True
-    )
+def save_sent(sent):
 
-    print(
-        "========================================",
-        flush=True
-    )
+    with open(
+        SENT_FILE,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            sent,
+            file,
+            ensure_ascii=False,
+            indent=2
+        )
+
+
+def load_sent():
+
+    if not os.path.exists(SENT_FILE):
+
+        print(
+            "ℹ️ sent.json belum ada. "
+            "Membuat file baru..."
+        )
+
+        save_sent([])
+
+        return []
 
     try:
 
-        main()
+        with open(
+            SENT_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
 
-    except Exception as error:
+            data = json.load(file)
+
+        if isinstance(data, list):
+            return data
 
         print(
-            "========================================",
-            flush=True
+            "⚠️ Isi sent.json tidak valid. "
+            "Database direset."
+        )
+
+        save_sent([])
+
+        return []
+
+    except (
+        json.JSONDecodeError,
+        OSError
+    ) as error:
+
+        print(
+            f"⚠️ Gagal membaca sent.json: {error}"
         )
 
         print(
-            "BOT CRASHED!",
-            flush=True
+            "⚠️ Database anti-duplikat direset."
+        )
+
+        save_sent([])
+
+        return []
+
+
+# =========================================================
+# BERSIHKAN TEKS
+# =========================================================
+
+def strip_html(raw_text):
+
+    if not raw_text:
+        return ""
+
+    text = re.sub(
+        r"<[^>]+>",
+        " ",
+        raw_text
+    )
+
+    text = html.unescape(text)
+
+    return " ".join(text.split())
+
+
+def clean_job_title(raw_title):
+
+    title = strip_html(raw_title)
+
+    for suffix in (
+        " - Glints",
+        " | Glints TapLoker",
+        " - Karir.com",
+        " - Jobstreet",
+        " - JobStreet",
+    ):
+
+        title = title.replace(
+            suffix,
+            ""
+        )
+
+    return title.strip(" ,-") 
+
+
+def fallback_description(
+    title,
+    source
+):
+
+    source_text = (
+        f" dari {source}"
+        if source
+        else ""
+    )
+
+    return (
+        f"Informasi lowongan ini ditemukan"
+        f"{source_text} untuk area "
+        "Cirebon/Kuningan dan sekitarnya. "
+        f"Posisi yang tersedia: {title}. "
+        "Buka tombol Lihat Lowongan untuk "
+        "membaca detail pekerjaan, "
+        "kualifikasi, persyaratan, gaji, "
+        "dan cara melamar langsung "
+        "di halaman resmi lowongan."
+    )
+
+
+# =========================================================
+# KEYBOARD TELEGRAM
+# =========================================================
+
+def build_keyboard(link):
+
+    return {
+        "inline_keyboard": [
+
+            [
+                {
+                    "text": "📄 Buat CV Profesional",
+                    "url": CV_URL
+                }
+            ],
+
+            [
+                {
+                    "text": "✍️ Buat Surat Lamaran",
+                    "url": LAMARAN_URL
+                }
+            ],
+
+            [
+                {
+                    "text": "🔎 Lihat Lowongan",
+                    "url": link
+                }
+            ]
+
+        ]
+    }
+
+
+# =========================================================
+# KIRIM TELEGRAM
+# =========================================================
+
+def send_telegram(
+    title,
+    description,
+    link
+):
+
+    if len(description) > 3000:
+
+        description = (
+            description[:3000]
+            + "..."
+        )
+
+    pesan = (
+        "📢 <b>INFO KerjaDimana</b>\n\n"
+
+        f"🏢 <b>{title}</b>\n\n"
+
+        "📝 <b>Deskripsi Pekerjaan</b>\n"
+
+        f"{description}\n\n"
+
+        "━━━━━━━━━━━━━━\n\n"
+
+        "📄 <b>BUAT CV GENERATOR KANDIDAT</b>\n"
+
+        "🎯 Buat CV profesional untuk "
+        "meningkatkan peluang diterima kerja.\n\n"
+
+        "🤖 <b>KerjaDimana.id</b>"
+    )
+
+    keyboard = build_keyboard(link)
+
+    payload = {
+
+        "chat_id": CHAT_ID,
+
+        "text": pesan,
+
+        "parse_mode": "HTML",
+
+        "reply_markup": keyboard,
+
+        "disable_web_page_preview": True
+
+    }
+
+    print()
+    print("📤 MENGIRIM POSTINGAN")
+
+    print(
+        "🌐 CV:"
+    )
+
+    print(CV_URL)
+
+    print(
+        "✍️ LAMARAN:"
+    )
+
+    print(LAMARAN_URL)
+
+    print(
+        "🔎 LOWONGAN:"
+    )
+
+    print(link)
+
+    try:
+
+        response = requests.post(
+
+            f"{TELEGRAM_API}/sendMessage",
+
+            json=payload,
+
+            timeout=30
+
+        )
+
+    except requests.RequestException as error:
+
+        print(
+            f"❌ Gagal terhubung ke Telegram: "
+            f"{error}"
+        )
+
+        return False
+
+    try:
+
+        data = response.json()
+
+    except ValueError:
+
+        print(
+            "❌ Response Telegram bukan JSON."
+        )
+
+        print(response.text)
+
+        return False
+
+    if (
+        response.status_code == 200
+        and data.get("ok")
+    ):
+
+        print(
+            "✅ BERHASIL:"
+            f" {html.unescape(title)[:70]}"
+        )
+
+        return True
+
+    print(
+        "❌ GAGAL TELEGRAM"
+    )
+
+    print(
+        f"HTTP Status: "
+        f"{response.status_code}"
+    )
+
+    print(
+        f"Response: "
+        f"{response.text}"
+    )
+
+    return False
+
+
+# =========================================================
+# PROSES RSS
+# =========================================================
+
+def process_feed(
+    rss_url,
+    sent,
+    force=False
+):
+
+    print()
+    print("=" * 60)
+
+    print(
+        "📡 Mengambil RSS:"
+    )
+
+    print(rss_url)
+
+    try:
+
+        response = requests.get(
+
+            rss_url,
+
+            timeout=30,
+
+            headers={
+                "User-Agent":
+                "Mozilla/5.0 "
+                "KerjaDimanaBot/1.0"
+            }
+
+        )
+
+    except requests.RequestException as error:
+
+        print(
+            f"❌ Gagal mengambil RSS: "
+            f"{error}"
+        )
+
+        return 0
+
+    if response.status_code != 200:
+
+        print(
+            f"⚠️ RSS HTTP "
+            f"{response.status_code}. "
+            "Feed dilewati."
+        )
+
+        return 0
+
+    try:
+
+        root = ET.fromstring(
+            response.content
+        )
+
+    except ET.ParseError as error:
+
+        print(
+            f"❌ XML RSS tidak valid: "
+            f"{error}"
+        )
+
+        return 0
+
+    items = root.findall(
+        ".//item"
+    )
+
+    print(
+        f"📦 Ditemukan "
+        f"{len(items)} item."
+    )
+
+    jumlah_berhasil = 0
+
+    for item in items[:5]:
+
+        title_raw = item.findtext(
+            "title",
+            ""
+        )
+
+        link_raw = item.findtext(
+            "link",
+            ""
+        )
+
+        desc_raw = item.findtext(
+            "description",
+            ""
+        )
+
+        source_raw = item.findtext(
+            "source",
+            ""
+        )
+
+        link = (
+            link_raw or ""
+        ).strip()
+
+        if not link:
+
+            print(
+                "⏭️ Item tidak mempunyai link."
+            )
+
+            continue
+
+        if (
+            link in sent
+            and not force
+        ):
+
+            print(
+                "⏭️ Sudah pernah dikirim: "
+                f"{title_raw[:60]}"
+            )
+
+            continue
+
+        title_plain = clean_job_title(
+            title_raw
+        )
+
+        description_plain = strip_html(
+            desc_raw
+        )
+
+        if not title_plain:
+
+            title_plain = (
+                "Lowongan Kerja Terbaru"
+            )
+
+        if (
+            len(description_plain) < 80
+            or
+            description_plain.lower()
+            in title_plain.lower()
+        ):
+
+            description_plain = (
+                fallback_description(
+                    title_plain,
+                    strip_html(
+                        source_raw
+                    )
+                )
+            )
+
+        title = html.escape(
+            title_plain
+        )
+
+        description = html.escape(
+            description_plain
+        )
+
+        print()
+
+        print(
+            "📨 Memproses: "
+            f"{html.unescape(title)[:70]}"
+        )
+
+        berhasil = send_telegram(
+
+            title,
+
+            description,
+
+            link
+
+        )
+
+        if berhasil:
+
+            if link not in sent:
+
+                sent.append(link)
+
+                save_sent(sent)
+
+            jumlah_berhasil += 1
+
+            print(
+                "⏳ Jeda 2 detik..."
+            )
+
+            time.sleep(2)
+
+    return jumlah_berhasil
+
+
+# =========================================================
+# MAIN
+# =========================================================
+
+def main(force=False):
+
+    validate_config()
+
+    sent = load_sent()
+
+    print()
+    print("=" * 60)
+
+    print(
+        "🤖 KerjaDimana.id Auto Loker"
+    )
+
+    print("=" * 60)
+
+    print(
+        f"📢 CHAT_ID: {CHAT_ID}"
+    )
+
+    print(
+        f"🌐 CV: {CV_URL}"
+    )
+
+    print(
+        f"✍️ Lamaran: {LAMARAN_URL}"
+    )
+
+    print(
+        f"📚 Database anti-duplikat: "
+        f"{len(sent)} link"
+    )
+
+    print(
+        "🔁 Force kirim ulang: "
+        f"{'YA' if force else 'TIDAK'}"
+    )
+
+    print("=" * 60)
+
+    total = 0
+
+    # =====================================================
+    # FEED UTAMA
+    # =====================================================
+
+    for rss_url in RSS_FEEDS:
+
+        total += process_feed(
+
+            rss_url,
+
+            sent,
+
+            force=force
+
+        )
+
+    # =====================================================
+    # FALLBACK
+    # =====================================================
+
+    if (
+        total == 0
+        and FALLBACK_RSS_FEEDS
+    ):
+
+        print()
+        print("=" * 60)
+
+        print(
+            "⚠️ Feed utama tidak mengirim loker."
         )
 
         print(
-            f"Error: {error}",
-            flush=True
+            "🔎 Mencoba fallback "
+            "Google News RSS..."
         )
 
-        print(
-            "========================================",
-            flush=True
-        )
+        print("=" * 60)
 
-        raise
+        for rss_url in FALLBACK_RSS_FEEDS:
+
+            total += process_feed(
+
+                rss_url,
+
+                sent,
+
+                force=force
+
+            )
+
+    save_sent(sent)
+
+    print()
+    print("=" * 60)
+
+    print(
+        "✅ SELESAI — "
+        f"{total} lowongan baru dikirim."
+    )
+
+    print("=" * 60)
+
+    return total
+
+
+# =========================================================
+# START
+# =========================================================
+
+if __name__ == "__main__":
+    main()
